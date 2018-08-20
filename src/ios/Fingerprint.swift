@@ -16,20 +16,22 @@ import LocalAuthentication
             biometryType = "none";
         }
 
+        if #available(iOS 11.0, *) {
+            switch(authenticationContext.biometryType) {
+            case .none:
+                biometryType = "none";
+            case .touchID:
+                biometryType = "finger";
+            case .faceID:
+                biometryType = "face"
+            }
+        }
+
         var pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Not available");
         if available == true {
-            if #available(iOS 11.0, *) {
-                switch(authenticationContext.biometryType) {
-                case .none:
-                    biometryType = "none";
-                case .touchID:
-                    biometryType = "finger";
-                case .faceID:
-                    biometryType = "face"
-                }
-            }
-
             pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: biometryType);
+        } else {
+            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "\(error!.code):\(biometryType)");
         }
 
         commandDelegate.send(pluginResult, callbackId:command.callbackId);
